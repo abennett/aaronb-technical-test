@@ -3,13 +3,12 @@
 package models
 
 import (
-	"database/sql"
-
 	"github.com/google/uuid"
 )
 
 type User struct {
-	ID   uuid.UUID
-	Name sql.NullString
-	Tags []string
+	ID       uuid.UUID
+	Name     string
+	Password []byte
+	Tags     []string
 }
