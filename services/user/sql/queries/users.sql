@@ -1,6 +1,9 @@
 -- name: GetUser :one
 SELECT * FROM users WHERE id = $1 LIMIT 1;
 
+-- name: GetUserByName :one
+SELECT * FROM users WHERE name = $1 LIMIT 1;
+
 -- name: GetUserTags :one
 SELECT tags FROM users WHERE id = $1; 
 
@@ -9,3 +12,6 @@ UPDATE users SET tags = $1;
 
 -- name: CreateUser :one
 INSERT INTO users (name, password) VALUES ($1, $2) RETURNING id;
+
+-- name: GetUserPassword :one
+SELECT password FROM users WHERE name = $1;

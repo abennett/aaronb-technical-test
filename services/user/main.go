@@ -8,6 +8,8 @@ import (
     "encoding/base64"
     "crypto/ed25519"
 
+    "go.uber.org/zap"
+
 	"github.com/toggleglobal/aaronb-technical-test/gen"
 	"github.com/toggleglobal/aaronb-technical-test/services"
 	"github.com/toggleglobal/aaronb-technical-test/services/user/internal"
@@ -54,6 +56,10 @@ func main() {
 		os.Exit(1)
 	}
 	user := gen.NewUserServiceServer(server, services.BaseHooks(l))
-	l.Info("listening on port :" + "8090")
-	http.ListenAndServe(":8090", services.ServiceWrapper(user))
+    go func() {
+        l.Info("listening on port :" + "8090", zap.String("service", "user-internal"))
+        http.ListenAndServe(":8090", services.ServiceWrapper(user))
+    }()
+    userPub := gen.NewPublicUserServiceServer(server, services.BaseHooks(l))
+    l.Info("listening on port :" + "8091", zap.String("service", "user-public"))
 }

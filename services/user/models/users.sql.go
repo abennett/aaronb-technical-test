@@ -42,6 +42,33 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
+const getUserByName = `-- name: GetUserByName :one
+SELECT id, name, password, tags FROM users WHERE name = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, name)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Password,
+		pq.Array(&i.Tags),
+	)
+	return i, err
+}
+
+const getUserPassword = `-- name: GetUserPassword :one
+SELECT password FROM users WHERE name = $1
+`
+
+func (q *Queries) GetUserPassword(ctx context.Context, name string) ([]byte, error) {
+	row := q.db.QueryRowContext(ctx, getUserPassword, name)
+	var password []byte
+	err := row.Scan(&password)
+	return password, err
+}
+
 const getUserTags = `-- name: GetUserTags :one
 SELECT tags FROM users WHERE id = $1
 `

@@ -20,6 +20,7 @@ import (
 type Service struct {
 	q *models.Queries
     kp services.KeyPair
+    auth *services.Auth
     l *zap.Logger
 }
 
@@ -36,8 +37,13 @@ func NewService(l *zap.Logger, kp services.KeyPair) (*Service, error) {
 		return nil, err
 	}
 	q := models.New(db)
+    auth, err := services.NewAuth(kp.Public, kp.Private)
+    if err != nil {
+        return nil, err
+    }
     return &Service{
         q: q,
+        auth: auth,
         kp: kp,
         l: l,
     }, nil
@@ -84,6 +90,27 @@ func (s *Service) CreateUser(ctx context.Context, req *gen.CreateUserReq) (*empt
 func (s *Service) GetPublicKey(ctx context.Context, _ *emptypb.Empty) (*gen.GetPublicKeyResp, error) {
     resp := &gen.GetPublicKeyResp{
         PublicKey: []byte(s.kp.Public),
+    }
+    return resp, nil
+}
+
+func (s *Service) Login(ctx context.Context, req *gen.LoginReq) (*gen.LoginResp, error) {
+    if req.Username == "" || req.Password == "" {
+        return nil, errors.New("username and password must not be empty")
+    }
+    user, err := s.q.GetUserByName(ctx, req.Username)
+    if err != nil {
+        return nil, err
+    }
+    if err = bcrypt.CompareHashAndPassword(user.Password, []byte(req.Password)); err != nil {
+        return nil, err
+    }
+    token, err := s.auth.MintToken(user.ID)
+    if err != nil {
+        return nil, err
+    }
+    resp := &gen.LoginResp{
+        Token: token,
     }
     return resp, nil
 }
