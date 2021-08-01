@@ -16,10 +16,7 @@ import (
 )
 
 func main() {
-	c := zap.NewProductionConfig()
-	c.DisableCaller = true
-	c.DisableStacktrace = true
-	l, err := c.Build()
+	l, err := services.NewProductionLogger()
 	if err != nil {
 		fmt.Println("unable to create logger: " + err.Error())
 		os.Exit(1)
