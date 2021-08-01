@@ -1,13 +1,12 @@
 FROM builder:latest AS builder
 
-WORKDIR ./services/user/cmd/user-service
+WORKDIR ./services/user
 
 RUN go build
 RUN pwd; ls
 
-
 FROM alpine:latest
 
-COPY --from=builder /build/services/user/cmd/user-service /usr/local/sbin/
+COPY --from=builder /build/services/user/user /usr/local/sbin/
 
 ENTRYPOINT ["/usr/local/sbin/user-service"]

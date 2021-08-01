@@ -6,3 +6,5 @@ news: base
 
 user: base
 	docker build -t user -f dockerfiles/User .
+
+all: base user news
