@@ -1,0 +1,11 @@
+FROM builder:latest AS builder
+
+WORKDIR ./services/news/cmd/news-service
+
+RUN go build
+
+FROM alpine:latest
+
+COPY --from=builder /build/services/news/cmd/news-service /usr/local/sbin/
+
+ENTRYPOINT ["/usr/local/sbin/news-service"]
