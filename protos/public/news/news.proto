@@ -1,0 +1,35 @@
+syntax = "proto3";
+package toggle.test.news;
+option go_package = "github.com/toggleglobal/aaronb-technical-test/gen";
+
+import "google/protobuf/timestamp.proto";
+
+service NewsService {
+    rpc GetNewsArticle(GetNewsReq) returns (GetNewsResp);
+    rpc CreateNewsArticle(CreateNewsReq) returns (CreateNewsResp);
+}
+
+message GetNewsReq {
+    repeated string tags = 1;
+    google.protobuf.Timestamp last_timestamp = 2;
+}
+
+message GetNewsResp {
+    repeated NewsArticle articles = 1;
+}
+
+message CreateNewsReq {
+    NewsArticle article = 1;
+}
+
+message CreateNewsResp {
+    int32 id = 1;
+}
+
+message NewsArticle {
+    int32 id = 1;
+    string title = 2;
+    google.protobuf.Timestamp timestamp = 3;
+    repeated string tags = 4;
+}
+

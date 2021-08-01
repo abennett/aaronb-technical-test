@@ -1,0 +1,23 @@
+syntax = "proto3";
+package toggle.test.internal.user;
+option go_package = "github.com/toggleglobal/aaronb-technical-test/gen";
+
+import "google/protobuf/empty.proto";
+
+service UserService {
+    rpc GetUserTags(GetUserTagsReq) returns (GetUserTagsResp);
+    rpc GetPublicKey(google.protobuf.Empty) returns (GetPublicKeyResp);
+}
+
+message GetUserTagsReq {
+    string user_id = 1;
+}
+
+message GetUserTagsResp {
+    string user_id = 1;
+    repeated string tags = 2;
+}
+
+message GetPublicKeyResp {
+    bytes public_key = 1;
+}

@@ -1,0 +1,29 @@
+syntax = "proto3";
+package toggle.test.public.user;
+option go_package = "github.com/toggleglobal/aaronb-technical-test/gen";
+
+import "google/protobuf/empty.proto";
+
+service PublicUserService {
+    rpc Login(LoginReq) returns (LoginResp);
+    rpc Logout(LogoutReq) returns (google.protobuf.Empty);
+    rpc CreateUser(CreateUserReq) returns (google.protobuf.Empty);
+}
+
+message LoginReq {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResp {
+    string token = 1;
+}
+
+message LogoutReq {
+    string session_id = 1;
+}
+
+message CreateUserReq {
+    string username = 1;
+    string password = 2;
+}
