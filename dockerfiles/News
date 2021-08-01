@@ -8,4 +8,4 @@ FROM alpine:latest
 
 COPY --from=builder /build/services/news/news /usr/local/sbin/
 
-ENTRYPOINT ["/usr/local/sbin/news-service"]
+ENTRYPOINT ["/usr/local/sbin/news"]

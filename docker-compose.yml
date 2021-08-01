@@ -1,0 +1,21 @@
+services:
+  news:
+    image: news
+    depends_on:
+      - pg
+      - user
+    environment:
+      PG_CONN: postgres://postgres@pg?password=dev&sslmode=disable
+      USER_SRV: http://user:8090
+  user:
+    image: user
+    depends_on: 
+      - pg
+    environment:
+      PG_CONN: postgres://postgres@pg?password=dev&sslmode=disable
+      PRIVATE_KEY: eZhYkbiHIeA6TiVJoqa2seyYd8GonwsvuEfgz0DezYXBB1mxlKbFrMO+Cd5AooKDP9ORAuXNSP4Rrt1RDr6SKw==
+      PUBLIC_KEY: wQdZsZSmxazDvgneQKKCgz/TkQLlzUj+Ea7dUQ6+kis=
+  pg:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: dev
