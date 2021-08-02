@@ -1,19 +1,23 @@
 package main
 
 import (
-	"os"
+	"context"
+	"crypto/ed25519"
+	"embed"
 	"fmt"
-    "context"
 	"net/http"
-    "crypto/ed25519"
-
-	"go.uber.org/zap"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
+
 	"github.com/toggleglobal/aaronb-technical-test/gen"
 	"github.com/toggleglobal/aaronb-technical-test/services"
 	"github.com/toggleglobal/aaronb-technical-test/services/news/internal"
 )
+
+//go:embed sql/*.sql
+var sqlFiles embed.FS
 
 func main() {
 	l, err := services.NewProductionLogger()
@@ -21,23 +25,35 @@ func main() {
 		fmt.Println("unable to create logger: " + err.Error())
 		os.Exit(1)
 	}
-	server, err := internal.NewService(l)
+	closer, err := services.SetupTracing("news")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer closer.Close()
+	db, err := services.SetupDB(sqlFiles)
+	if err != nil {
+		l.Error(err.Error())
+		os.Exit(1)
+	}
+	server, err := internal.NewService(l, db)
 	if err != nil {
 		l.Error(err.Error())
 		os.Exit(1)
 	}
 	newsSrv := gen.NewNewsServiceServer(server, services.BaseHooks(l))
 	newsHandler := services.ServiceWrapper(newsSrv)
-    pub, err := server.Users.GetPublicKey(context.Background(), nil)
-    if err != nil {
-        l.Error("failed to fetch pubic key from user service", zap.Error(err))
-        os.Exit(1)
-    }
-    pubKey := ed25519.PublicKey(pub.PublicKey)
-    newsHandler = services.MustAuth(pubKey, newsHandler)
-	mux := http.NewServeMux()
-	mux.Handle("/", newsHandler)
-	mux.Handle("/metrics", promhttp.Handler())
-	l.Info("listening on port :" + "8100")
-	http.ListenAndServe(":8100", mux)
+	pub, err := server.Users.GetPublicKey(context.Background(), nil)
+	if err != nil {
+		l.Error("failed to fetch pubic key from user service", zap.Error(err))
+		os.Exit(1)
+	}
+	pubKey := ed25519.PublicKey(pub.PublicKey)
+	newsHandler = services.MustAuth(pubKey, newsHandler)
+	go func() {
+		l.Info("listening on port :"+"8100", zap.String("service", "news"))
+		http.ListenAndServe(":8100", newsHandler)
+	}()
+	l.Info("metrics running", zap.String("port", ":8411"))
+	http.ListenAndServe(":8411", promhttp.Handler())
 }

@@ -3,9 +3,9 @@ package internal
 import (
 	"context"
 	"database/sql"
-    "net/http"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -17,36 +17,23 @@ import (
 )
 
 type Service struct {
-	q *models.Queries
-    Users gen.UserService
-	l *zap.Logger
+	q     *models.Queries
+	Users gen.UserService
+	l     *zap.Logger
 }
 
-func NewService(l *zap.Logger) (*Service, error) {
-    // setup postgres
-	pgConn, ok := os.LookupEnv("PG_CONN")
-	if !ok {
-		return nil, errors.New("PG_CONN not available")
-	}
-	db, err := sql.Open("postgres", pgConn)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-
-    // setup user service client
+func NewService(l *zap.Logger, db *sql.DB) (*Service, error) {
+	// setup user service client
 	userAddr, ok := os.LookupEnv("USER_SRV")
 	if !ok {
 		return nil, errors.New("USER_SRV not available")
 	}
-    users := gen.NewUserServiceProtobufClient(userAddr, &http.Client{})
+	users := gen.NewUserServiceProtobufClient(userAddr, &http.Client{})
 	q := models.New(db)
 	return &Service{
-		q: q,
-        Users: users,
-		l: l,
+		q:     q,
+		Users: users,
+		l:     l,
 	}, nil
 }
 

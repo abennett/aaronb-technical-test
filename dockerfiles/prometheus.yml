@@ -1,0 +1,15 @@
+global:
+  # How frequently to scrape targets by default.
+  scrape_interval: 5s
+
+scrape_configs:
+- job_name: user
+  metrics_path: /
+  static_configs:
+  - targets:
+    - user:8411
+- job_name: news
+  metrics_path: /
+  static_configs:
+  - targets:
+    - news:8411

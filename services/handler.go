@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -17,7 +19,7 @@ var (
 	rk  = remoteKey{}
 	stk = startTimeKey{}
 
-	middlewareChain = []Middleware{RemoteHostHandler, StartTimeHandler}
+	middlewareChain = []Middleware{RemoteHostHandler, StartTimeHandler, TracingHandler}
 )
 
 func GetRemote(ctx context.Context) string {
@@ -35,6 +37,16 @@ func ServiceWrapper(handler http.Handler) http.Handler {
 		handler = h(handler)
 	}
 	return handler
+}
+
+func TracingHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		span, ctx := opentracing.StartSpanFromContext(ctx, "request_received_handler")
+		defer span.Finish()
+		r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func StartTimeHandler(next http.Handler) http.Handler {

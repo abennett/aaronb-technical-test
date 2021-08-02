@@ -29,6 +29,14 @@ var (
 	responsesSent = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "responses_total",
-		}, []string{"status_code"},
+		}, 
+        []string{"status_code"},
 	)
+    responseLatency = promauto.NewHistogramVec(
+        prometheus.HistogramOpts{
+            Name: "request_latencies",
+            Buckets: []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+        },
+        []string{"status_code", "method"},
+    )
 )
