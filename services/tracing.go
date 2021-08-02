@@ -18,7 +18,6 @@ func SetupTracing(serviceName string) (io.Closer, error) {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LocalAgentHostPort: "jaeger:6831",
-			LogSpans:           true,
 		},
 	}
 	tracer, closer, err := cfg.NewTracer(
