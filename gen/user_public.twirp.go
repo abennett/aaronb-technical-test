@@ -37,8 +37,6 @@ const _ = twirp.TwirpPackageMinVersion_8_1_0
 type PublicUserService interface {
 	Login(context.Context, *LoginReq) (*LoginResp, error)
 
-	Logout(context.Context, *LogoutReq) (*google_protobuf.Empty, error)
-
 	CreateUser(context.Context, *CreateUserReq) (*google_protobuf.Empty, error)
 }
 
@@ -48,7 +46,7 @@ type PublicUserService interface {
 
 type publicUserServiceProtobufClient struct {
 	client      HTTPClient
-	urls        [3]string
+	urls        [2]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -76,9 +74,8 @@ func NewPublicUserServiceProtobufClient(baseURL string, client HTTPClient, opts 
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "toggle.test.public.user", "PublicUserService")
-	urls := [3]string{
+	urls := [2]string{
 		serviceURL + "Login",
-		serviceURL + "Logout",
 		serviceURL + "CreateUser",
 	}
 
@@ -136,52 +133,6 @@ func (c *publicUserServiceProtobufClient) callLogin(ctx context.Context, in *Log
 	return out, nil
 }
 
-func (c *publicUserServiceProtobufClient) Logout(ctx context.Context, in *LogoutReq) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "toggle.test.public.user")
-	ctx = ctxsetters.WithServiceName(ctx, "PublicUserService")
-	ctx = ctxsetters.WithMethodName(ctx, "Logout")
-	caller := c.callLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *LogoutReq) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*LogoutReq)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*LogoutReq) when calling interceptor")
-					}
-					return c.callLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *publicUserServiceProtobufClient) callLogout(ctx context.Context, in *LogoutReq) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *publicUserServiceProtobufClient) CreateUser(ctx context.Context, in *CreateUserReq) (*google_protobuf.Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "toggle.test.public.user")
 	ctx = ctxsetters.WithServiceName(ctx, "PublicUserService")
@@ -213,7 +164,7 @@ func (c *publicUserServiceProtobufClient) CreateUser(ctx context.Context, in *Cr
 
 func (c *publicUserServiceProtobufClient) callCreateUser(ctx context.Context, in *CreateUserReq) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -234,7 +185,7 @@ func (c *publicUserServiceProtobufClient) callCreateUser(ctx context.Context, in
 
 type publicUserServiceJSONClient struct {
 	client      HTTPClient
-	urls        [3]string
+	urls        [2]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -262,9 +213,8 @@ func NewPublicUserServiceJSONClient(baseURL string, client HTTPClient, opts ...t
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "toggle.test.public.user", "PublicUserService")
-	urls := [3]string{
+	urls := [2]string{
 		serviceURL + "Login",
-		serviceURL + "Logout",
 		serviceURL + "CreateUser",
 	}
 
@@ -322,52 +272,6 @@ func (c *publicUserServiceJSONClient) callLogin(ctx context.Context, in *LoginRe
 	return out, nil
 }
 
-func (c *publicUserServiceJSONClient) Logout(ctx context.Context, in *LogoutReq) (*google_protobuf.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "toggle.test.public.user")
-	ctx = ctxsetters.WithServiceName(ctx, "PublicUserService")
-	ctx = ctxsetters.WithMethodName(ctx, "Logout")
-	caller := c.callLogout
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *LogoutReq) (*google_protobuf.Empty, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*LogoutReq)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*LogoutReq) when calling interceptor")
-					}
-					return c.callLogout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *publicUserServiceJSONClient) callLogout(ctx context.Context, in *LogoutReq) (*google_protobuf.Empty, error) {
-	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 func (c *publicUserServiceJSONClient) CreateUser(ctx context.Context, in *CreateUserReq) (*google_protobuf.Empty, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "toggle.test.public.user")
 	ctx = ctxsetters.WithServiceName(ctx, "PublicUserService")
@@ -399,7 +303,7 @@ func (c *publicUserServiceJSONClient) CreateUser(ctx context.Context, in *Create
 
 func (c *publicUserServiceJSONClient) callCreateUser(ctx context.Context, in *CreateUserReq) (*google_protobuf.Empty, error) {
 	out := new(google_protobuf.Empty)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -513,9 +417,6 @@ func (s *publicUserServiceServer) ServeHTTP(resp http.ResponseWriter, req *http.
 	switch method {
 	case "Login":
 		s.serveLogin(ctx, resp, req)
-		return
-	case "Logout":
-		s.serveLogout(ctx, resp, req)
 		return
 	case "CreateUser":
 		s.serveCreateUser(ctx, resp, req)
@@ -684,186 +585,6 @@ func (s *publicUserServiceServer) serveLoginProtobuf(ctx context.Context, resp h
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *LoginResp and nil error while calling Login. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *publicUserServiceServer) serveLogout(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveLogoutJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveLogoutProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *publicUserServiceServer) serveLogoutJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "Logout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(LogoutReq)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.PublicUserService.Logout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *LogoutReq) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*LogoutReq)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*LogoutReq) when calling interceptor")
-					}
-					return s.PublicUserService.Logout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling Logout. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *publicUserServiceServer) serveLogoutProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "Logout")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(LogoutReq)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.PublicUserService.Logout
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *LogoutReq) (*google_protobuf.Empty, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*LogoutReq)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*LogoutReq) when calling interceptor")
-					}
-					return s.PublicUserService.Logout(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*google_protobuf.Empty)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*google_protobuf.Empty) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *google_protobuf.Empty
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *google_protobuf.Empty and nil error while calling Logout. nil responses are not supported"))
 		return
 	}
 
@@ -1651,25 +1372,23 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 320 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x91, 0xc1, 0x4b, 0x2b, 0x31,
-	0x10, 0xc6, 0xe9, 0x83, 0x96, 0x76, 0xe0, 0x1d, 0x5e, 0x78, 0xbc, 0x57, 0x56, 0x04, 0xbb, 0x88,
-	0x88, 0xd0, 0x04, 0xed, 0x7f, 0x50, 0x15, 0x11, 0x8a, 0x48, 0xc5, 0x8b, 0x97, 0x92, 0xdd, 0x8e,
-	0x69, 0x70, 0x9b, 0x59, 0x93, 0xac, 0xe2, 0x5f, 0xee, 0x55, 0x92, 0x6c, 0x15, 0x0f, 0xd5, 0x83,
-	0x97, 0xc0, 0xe4, 0xfb, 0xf2, 0xcb, 0xcc, 0x37, 0xb0, 0x5f, 0x5b, 0xf2, 0xe4, 0x44, 0xdd, 0x14,
-	0x95, 0x2e, 0x45, 0xe3, 0xd0, 0xc6, 0x63, 0x91, 0x2e, 0x78, 0x94, 0xd9, 0x7f, 0x4f, 0x4a, 0x55,
-	0xc8, 0x3d, 0x3a, 0xcf, 0x5b, 0x25, 0xb8, 0xb2, 0x1d, 0x45, 0xa4, 0x2a, 0x14, 0xd1, 0x56, 0x34,
-	0xf7, 0x02, 0xd7, 0xb5, 0x7f, 0x49, 0xaf, 0xf2, 0x29, 0xf4, 0x67, 0xa4, 0xb4, 0x99, 0xe3, 0x23,
-	0xcb, 0xa0, 0x1f, 0x1e, 0x18, 0xb9, 0xc6, 0x61, 0x67, 0xaf, 0x73, 0x38, 0x98, 0xbf, 0xd7, 0x41,
-	0xab, 0xa5, 0x73, 0xcf, 0x64, 0x97, 0xc3, 0x5f, 0x49, 0xdb, 0xd4, 0xf9, 0x08, 0x06, 0x2d, 0xc3,
-	0xd5, 0xec, 0x2f, 0x74, 0x3d, 0x3d, 0xa0, 0x69, 0x09, 0xa9, 0xc8, 0x8f, 0xa2, 0x85, 0x1a, 0x1f,
-	0xfe, 0xd9, 0x05, 0x70, 0xe8, 0x9c, 0x26, 0xb3, 0xd0, 0xcb, 0xd6, 0x37, 0x68, 0x6f, 0x2e, 0x97,
-	0xf9, 0x05, 0xfc, 0x3e, 0xb5, 0x28, 0x3d, 0xde, 0x3a, 0xb4, 0x3f, 0xe8, 0xeb, 0xe4, 0xb5, 0x03,
-	0x7f, 0xae, 0x63, 0x10, 0x81, 0x74, 0x83, 0xf6, 0x49, 0x97, 0xc8, 0xae, 0xa0, 0x1b, 0xbb, 0x65,
-	0x23, 0xbe, 0x25, 0x31, 0xbe, 0x49, 0x24, 0xcb, 0xbf, 0xb3, 0xb8, 0x9a, 0x9d, 0x41, 0x2f, 0x8d,
-	0xc6, 0xbe, 0x74, 0xa7, 0xd9, 0xb3, 0x7f, 0x3c, 0x6d, 0x83, 0x6f, 0xb6, 0xc1, 0xcf, 0xc3, 0x36,
-	0xd8, 0x0c, 0xe0, 0x63, 0x68, 0x76, 0xb0, 0x95, 0xf4, 0x29, 0x99, 0x6d, 0xb4, 0xe9, 0xe4, 0xee,
-	0x58, 0x69, 0xbf, 0x6a, 0x0a, 0x5e, 0xd2, 0x5a, 0x24, 0x96, 0xaa, 0xa8, 0x90, 0x95, 0x90, 0xd2,
-	0x92, 0x29, 0xc6, 0x1e, 0xcb, 0x95, 0xd1, 0xa5, 0xac, 0xc6, 0xe1, 0x0b, 0xa1, 0xd0, 0x14, 0xbd,
-	0x08, 0x99, 0xbc, 0x05, 0x00, 0x00, 0xff, 0xff, 0xb9, 0x34, 0x5e, 0x9a, 0x6f, 0x02, 0x00, 0x00,
+	// 281 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x50, 0xcd, 0x4a, 0x33, 0x31,
+	0x14, 0x65, 0x3e, 0xe8, 0x47, 0x1b, 0x70, 0x61, 0x10, 0x2d, 0xe3, 0xc6, 0x0e, 0x22, 0x6e, 0x9a,
+	0xa0, 0x7d, 0x83, 0x8a, 0xb8, 0x29, 0x22, 0x15, 0x37, 0x6e, 0x24, 0x19, 0xaf, 0xe9, 0x60, 0x26,
+	0x37, 0x26, 0x19, 0xc5, 0xc7, 0xf2, 0x0d, 0x25, 0xc9, 0x8c, 0xe2, 0xa2, 0xb8, 0x70, 0x13, 0xb8,
+	0x39, 0x3f, 0xf7, 0x9e, 0x43, 0x8e, 0xad, 0xc3, 0x80, 0x9e, 0xdb, 0x4e, 0xea, 0xa6, 0xe6, 0x9d,
+	0x07, 0x97, 0x9e, 0x87, 0xfc, 0xc1, 0x12, 0x4c, 0x0f, 0x02, 0x2a, 0xa5, 0x81, 0x05, 0xf0, 0x81,
+	0xf5, 0x48, 0x64, 0x95, 0x87, 0x0a, 0x51, 0x69, 0xe0, 0x89, 0x26, 0xbb, 0x27, 0x0e, 0xad, 0x0d,
+	0xef, 0x59, 0x55, 0x2d, 0xc9, 0x78, 0x85, 0xaa, 0x31, 0x6b, 0x78, 0xa1, 0x25, 0x19, 0x47, 0x81,
+	0x11, 0x2d, 0x4c, 0x8b, 0xa3, 0xe2, 0x74, 0xb2, 0xfe, 0x9a, 0x23, 0x66, 0x85, 0xf7, 0x6f, 0xe8,
+	0x1e, 0xa7, 0xff, 0x32, 0x36, 0xcc, 0xd5, 0x8c, 0x4c, 0x7a, 0x0f, 0x6f, 0xe9, 0x1e, 0x19, 0x05,
+	0x7c, 0x06, 0xd3, 0x3b, 0xe4, 0xa1, 0xba, 0x22, 0x3b, 0x17, 0x0e, 0x44, 0x80, 0x3b, 0x0f, 0xee,
+	0x0f, 0xbb, 0xce, 0x3f, 0x0a, 0xb2, 0x7b, 0x93, 0xc2, 0x45, 0xa7, 0x5b, 0x70, 0xaf, 0x4d, 0x0d,
+	0xf4, 0x9a, 0x8c, 0xd2, 0x05, 0x74, 0xc6, 0xb6, 0xb4, 0xc0, 0x86, 0x94, 0x65, 0xf5, 0x1b, 0xc5,
+	0x5b, 0xba, 0x22, 0xe4, 0xfb, 0x5c, 0x7a, 0xb2, 0x55, 0xf1, 0x23, 0x53, 0xb9, 0xcf, 0x72, 0xd3,
+	0x6c, 0x68, 0x9a, 0x5d, 0xc6, 0xa6, 0x97, 0x8b, 0xfb, 0x33, 0xd5, 0x84, 0x4d, 0x27, 0x59, 0x8d,
+	0x2d, 0xcf, 0x5e, 0x4a, 0xa3, 0x14, 0x9a, 0x0b, 0xe1, 0xd0, 0xc8, 0x79, 0x80, 0x7a, 0x63, 0x9a,
+	0x5a, 0xe8, 0x79, 0x5c, 0xc1, 0x15, 0x18, 0xf9, 0x3f, 0x99, 0x2c, 0x3e, 0x03, 0x00, 0x00, 0xff,
+	0xff, 0x07, 0x47, 0x83, 0x25, 0xfd, 0x01, 0x00, 0x00,
 }

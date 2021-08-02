@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 
 service PublicUserService {
     rpc Login(LoginReq) returns (LoginResp);
-    rpc Logout(LogoutReq) returns (google.protobuf.Empty);
     rpc CreateUser(CreateUserReq) returns (google.protobuf.Empty);
 }
 
@@ -17,10 +16,6 @@ message LoginReq {
 
 message LoginResp {
     string token = 1;
-}
-
-message LogoutReq {
-    string session_id = 1;
 }
 
 message CreateUserReq {
