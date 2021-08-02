@@ -33,7 +33,7 @@ func SetupDB(migrations embed.FS) (*sql.DB, error) {
 		return nil, err
 	}
 	m, err := migrate.NewWithInstance("iofs", d, "postgres", instance)
-	if err = m.Up(); err != nil {
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
 		return nil, err
 	}
 	return db, nil

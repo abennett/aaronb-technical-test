@@ -1,0 +1,2 @@
+CREATE DATABASE users_db;
+CREATE DATABASE news_db;
