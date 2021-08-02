@@ -14,6 +14,7 @@ import (
 
 	"github.com/toggleglobal/aaronb-technical-test/gen"
 	"github.com/toggleglobal/aaronb-technical-test/services/news/models"
+	"github.com/twitchtv/twirp"
 )
 
 type Service struct {
@@ -59,7 +60,7 @@ func (s *Service) GetNewsArticle(ctx context.Context, req *gen.GetNewsReq) (*gen
 	s.l.Info("query", zap.Any("query", query))
 	news, err := s.q.ListNewByTagsPaged(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, twirp.WrapError(twirp.NewError(twirp.Internal, "failed to list news by tag"), err)
 	}
 	s.l.Info("news", zap.Any("news", news))
 	articles := make([]*gen.NewsArticle, len(news))
@@ -74,7 +75,7 @@ func (s *Service) GetNewsArticle(ctx context.Context, req *gen.GetNewsReq) (*gen
 
 func (s *Service) CreateNewsArticle(ctx context.Context, req *gen.CreateNewsReq) (*gen.CreateNewsResp, error) {
 	if !req.Article.Timestamp.IsValid() {
-		return nil, fmt.Errorf("timestamp is invalid: %v", req.Article.Timestamp)
+		return nil, twirp.NewError(twirp.InvalidArgument, fmt.Sprintf("timestamp is invalid: %v", req.Article.Timestamp))
 	}
 	params := models.CreateNewsParams{
 		Title:     req.Article.Title,
@@ -83,7 +84,7 @@ func (s *Service) CreateNewsArticle(ctx context.Context, req *gen.CreateNewsReq)
 	}
 	id, err := s.q.CreateNews(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, twirp.WrapError(twirp.NewError(twirp.Internal, "failed to create news"), err)
 	}
 	resp := &gen.CreateNewsResp{
 		Id: id,
