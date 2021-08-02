@@ -10,6 +10,20 @@ import (
 	"github.com/lib/pq"
 )
 
+const addUserTags = `-- name: AddUserTags :exec
+UPDATE users SET tags = tags || $1::TEXT WHERE id = $2
+`
+
+type AddUserTagsParams struct {
+	Tag string
+	ID  uuid.UUID
+}
+
+func (q *Queries) AddUserTags(ctx context.Context, arg AddUserTagsParams) error {
+	_, err := q.db.ExecContext(ctx, addUserTags, arg.Tag, arg.ID)
+	return err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, password) VALUES ($1, $2) RETURNING id
 `
@@ -80,11 +94,11 @@ func (q *Queries) GetUserTags(ctx context.Context, id uuid.UUID) ([]string, erro
 	return tags, err
 }
 
-const updateUserTags = `-- name: UpdateUserTags :exec
-UPDATE users SET tags = $1
+const removeUserTags = `-- name: RemoveUserTags :exec
+UPDATE users SET tags =  array_remove(tags, $1::TEXT)
 `
 
-func (q *Queries) UpdateUserTags(ctx context.Context, tags []string) error {
-	_, err := q.db.ExecContext(ctx, updateUserTags, pq.Array(tags))
+func (q *Queries) RemoveUserTags(ctx context.Context, tag string) error {
+	_, err := q.db.ExecContext(ctx, removeUserTags, tag)
 	return err
 }
