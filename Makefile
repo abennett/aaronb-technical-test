@@ -8,3 +8,8 @@ user: base
 	docker build -t user -f dockerfiles/User .
 
 all: base user news
+
+test: base user news
+	docker-compose up -d
+	sleep 1
+	go test . -race
