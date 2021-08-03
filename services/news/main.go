@@ -36,14 +36,21 @@ func main() {
 		l.Error(err.Error())
 		os.Exit(1)
 	}
-	server, err := internal.NewService(l, db)
+	// setup user service client
+	userAddr, ok := os.LookupEnv("USER_SRV")
+	if !ok {
+		l.Error("USER_SRV not available")
+		os.Exit(1)
+	}
+	users := gen.NewUserServiceProtobufClient(userAddr, &http.Client{})
+	server, err := internal.NewService(l, db, users)
 	if err != nil {
 		l.Error(err.Error())
 		os.Exit(1)
 	}
 	newsSrv := gen.NewNewsServiceServer(server, services.BaseHooks(l))
 	newsHandler := services.ServiceWrapper(newsSrv)
-	pub, err := server.Users.GetPublicKey(context.Background(), nil)
+	pub, err := users.GetPublicKey(context.Background(), nil)
 	if err != nil {
 		l.Error("failed to fetch pubic key from user service", zap.Error(err))
 		os.Exit(1)
@@ -52,7 +59,9 @@ func main() {
 	newsHandler = services.MustAuth(pubKey, newsHandler)
 	go func() {
 		l.Info("listening on port :"+"8100", zap.String("service", "news"))
-		http.ListenAndServe(":8100", newsHandler)
+		if err := http.ListenAndServe(":8100", newsHandler); err != nil {
+			l.Error("news service returned an error", zap.Error(err))
+		}
 	}()
 	l.Info("metrics running", zap.String("port", ":8411"))
 	http.ListenAndServe(":8411", promhttp.Handler())

@@ -10,17 +10,17 @@ import (
 	"github.com/lib/pq"
 )
 
-const addUserTags = `-- name: AddUserTags :exec
-UPDATE users SET tags = tags || $1::TEXT WHERE id = $2
+const addUserTag = `-- name: AddUserTag :exec
+UPDATE users SET tags = ARRAY(SELECT DISTINCT unnest(tags || $1::TEXT)) WHERE id = $2
 `
 
-type AddUserTagsParams struct {
+type AddUserTagParams struct {
 	Tag string
 	ID  uuid.UUID
 }
 
-func (q *Queries) AddUserTags(ctx context.Context, arg AddUserTagsParams) error {
-	_, err := q.db.ExecContext(ctx, addUserTags, arg.Tag, arg.ID)
+func (q *Queries) AddUserTag(ctx context.Context, arg AddUserTagParams) error {
+	_, err := q.db.ExecContext(ctx, addUserTag, arg.Tag, arg.ID)
 	return err
 }
 
@@ -94,11 +94,16 @@ func (q *Queries) GetUserTags(ctx context.Context, id uuid.UUID) ([]string, erro
 	return tags, err
 }
 
-const removeUserTags = `-- name: RemoveUserTags :exec
-UPDATE users SET tags =  array_remove(tags, $1::TEXT)
+const removeUserTag = `-- name: RemoveUserTag :exec
+UPDATE users SET tags =  array_remove(tags, $1::TEXT) WHERE id = $2
 `
 
-func (q *Queries) RemoveUserTags(ctx context.Context, tag string) error {
-	_, err := q.db.ExecContext(ctx, removeUserTags, tag)
+type RemoveUserTagParams struct {
+	Tag string
+	ID  uuid.UUID
+}
+
+func (q *Queries) RemoveUserTag(ctx context.Context, arg RemoveUserTagParams) error {
+	_, err := q.db.ExecContext(ctx, removeUserTag, arg.Tag, arg.ID)
 	return err
 }

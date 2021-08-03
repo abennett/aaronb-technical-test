@@ -8,10 +8,10 @@ SELECT * FROM users WHERE name = $1 LIMIT 1;
 SELECT tags FROM users WHERE id = $1; 
 
 -- name: AddUserTag :exec
-UPDATE users SET tags = tags || @tag::TEXT WHERE id = @id;
+UPDATE users SET tags = ARRAY(SELECT DISTINCT unnest(tags || @tag::TEXT)) WHERE id = @id;
 
 -- name: RemoveUserTag :exec
-UPDATE users SET tags =  array_remove(tags, @tag::TEXT);
+UPDATE users SET tags =  array_remove(tags, @tag::TEXT) WHERE id = @id;
 
 -- name: CreateUser :one
 INSERT INTO users (name, password) VALUES ($1, $2) RETURNING id;

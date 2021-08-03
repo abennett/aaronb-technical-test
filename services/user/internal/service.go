@@ -55,26 +55,29 @@ func (s *Service) GetUserTags(ctx context.Context, req *gen.GetUserTagsReq) (*ge
 	return resp, nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, req *gen.CreateUserReq) (*emptypb.Empty, error) {
-	empty := &emptypb.Empty{}
+func (s *Service) CreateUser(ctx context.Context, req *gen.CreateUserReq) (*gen.CreateUserResp, error) {
 	if req.Username == "" {
-		return empty, twirp.NewError(twirp.InvalidArgument, "username cannot be blank")
+		return nil, twirp.NewError(twirp.InvalidArgument, "username cannot be blank")
 	}
 	if req.Password == "" {
-		return empty, twirp.NewError(twirp.InvalidArgument, "password cannot be blank")
+		return nil, twirp.NewError(twirp.InvalidArgument, "password cannot be blank")
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return empty, twirp.NewError(twirp.Internal, "failed to hash password")
+		return nil, twirp.NewError(twirp.Internal, "failed to hash password")
 	}
 	params := models.CreateUserParams{
 		Name:     req.Username,
 		Password: hash,
 	}
-	if _, err = s.q.CreateUser(ctx, params); err != nil {
-		return empty, twirp.NewError(twirp.Internal, "unable to create new user")
+	id, err := s.q.CreateUser(ctx, params)
+	if err != nil {
+		return nil, twirp.NewError(twirp.Internal, "unable to create new user")
 	}
-	return empty, nil
+	resp := &gen.CreateUserResp{
+		UserId: id.String(),
+	}
+	return resp, nil
 }
 
 func (s *Service) GetPublicKey(ctx context.Context, _ *emptypb.Empty) (*gen.GetPublicKeyResp, error) {
@@ -110,4 +113,46 @@ func (s *Service) Login(ctx context.Context, req *gen.LoginReq) (*gen.LoginResp,
 		Token: token,
 	}
 	return resp, nil
+}
+
+func (s *Service) AddUserTag(ctx context.Context, req *gen.AddUserTagReq) (*emptypb.Empty, error) {
+	empty := new(emptypb.Empty)
+	id := services.GetUserIDCtx(ctx)
+	if id == uuid.Nil {
+		return empty, twirp.NewError(twirp.Unauthenticated, "must be authenticated")
+	}
+	if req.Tag == "" {
+		return empty, twirp.NewError(twirp.InvalidArgument, "tag must not be empty")
+	}
+	params := models.AddUserTagParams{
+		ID:  id,
+		Tag: req.Tag,
+	}
+	if err := s.q.AddUserTag(ctx, params); err != nil {
+		errMsg := "failed to add tag: " + req.Tag
+		s.l.Error(errMsg, zap.Error(err))
+		return empty, twirp.NewError(twirp.Internal, errMsg)
+	}
+	return empty, nil
+}
+
+func (s *Service) RemoveUserTag(ctx context.Context, req *gen.RemoveUserTagReq) (*emptypb.Empty, error) {
+	empty := new(emptypb.Empty)
+	id := services.GetUserIDCtx(ctx)
+	if id == uuid.Nil {
+		return empty, twirp.NewError(twirp.Unauthenticated, "must be authenticated")
+	}
+	if req.Tag == "" {
+		return empty, twirp.NewError(twirp.InvalidArgument, "tag must not be empty")
+	}
+	params := models.RemoveUserTagParams{
+		ID:  id,
+		Tag: req.Tag,
+	}
+	if err := s.q.RemoveUserTag(ctx, params); err != nil {
+		errMsg := "failed to remove tag: " + req.Tag
+		s.l.Error(errMsg, zap.Error(err))
+		return empty, twirp.NewError(twirp.Internal, errMsg)
+	}
+	return empty, nil
 }

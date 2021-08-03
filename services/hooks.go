@@ -11,8 +11,8 @@ import (
 
 func BaseHooks(l *zap.Logger) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
-		RequestReceived: func(ctx context.Context) (context.Context, error) {
-			span, ctx := opentracing.StartSpanFromContext(ctx, "request_recevied_hook")
+		RequestRouted: func(ctx context.Context) (context.Context, error) {
+			span, ctx := opentracing.StartSpanFromContext(ctx, "request_routed")
 			defer span.Finish()
 			method, ok := twirp.MethodName(ctx)
 			if ok {

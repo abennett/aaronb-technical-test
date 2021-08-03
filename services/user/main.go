@@ -71,15 +71,16 @@ func main() {
 		l.Error(err.Error())
 		os.Exit(1)
 	}
-	user := gen.NewUserServiceServer(server, services.BaseHooks(l))
 	go func() {
+		user := gen.NewUserServiceServer(server, services.BaseHooks(l))
 		l.Info("listening on port :"+"8091", zap.String("service", "user-internal"))
 		http.ListenAndServe(":8091", services.ServiceWrapper(user))
 	}()
 	go func() {
 		userPub := gen.NewPublicUserServiceServer(server, services.BaseHooks(l))
+		userPubHandler := services.ServiceWrapper(userPub)
 		l.Info("listening on port :"+"8090", zap.String("service", "user-public"))
-		http.ListenAndServe(":8090", services.ServiceWrapper(userPub))
+		http.ListenAndServe(":8090", services.InjectAuth(l, kp.Public, userPubHandler))
 	}()
 	l.Info("metrics running", zap.String("port", ":8411"))
 	http.ListenAndServe(":8411", promhttp.Handler())
