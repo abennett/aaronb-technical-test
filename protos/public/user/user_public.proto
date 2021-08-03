@@ -6,7 +6,9 @@ import "google/protobuf/empty.proto";
 
 service PublicUserService {
     rpc Login(LoginReq) returns (LoginResp);
-    rpc CreateUser(CreateUserReq) returns (google.protobuf.Empty);
+    rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+    rpc AddUserTag(AddUserTagReq) returns (google.protobuf.Empty);
+    rpc RemoveUserTag(RemoveUserTagReq) returns (google.protobuf.Empty);
 }
 
 message LoginReq {
@@ -21,4 +23,16 @@ message LoginResp {
 message CreateUserReq {
     string username = 1;
     string password = 2;
+}
+
+message CreateUserResp {
+    string user_id = 1;
+}
+
+message AddUserTagReq {
+    string tag = 1;
+}
+
+message RemoveUserTagReq {
+    string tag = 1;
 }
