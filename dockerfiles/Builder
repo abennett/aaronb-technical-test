@@ -15,5 +15,5 @@ RUN protoc \
     --go_out=module=github.com/toggleglobal/aaronb-technical-test:. \
     --twirp_out=module=github.com/toggleglobal/aaronb-technical-test:. \
     protos/public/user/user_public.proto \
-    protos/private/user/user.proto \
+    protos/internal/user/user.proto \
     protos/public/news/news.proto
