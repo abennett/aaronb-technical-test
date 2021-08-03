@@ -26,6 +26,9 @@ services:
       JAEGER_AGENT_HOST: jaeger
   pg:
     image: pg
+    build:
+      context: ./dockerfiles
+      dockerfile: PG
     environment:
       POSTGRES_PASSWORD: dev
     ports:

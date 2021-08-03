@@ -13,3 +13,6 @@ test: base user news
 	docker-compose up -d
 	sleep 1
 	go test . -race
+
+clean:
+	docker-compose down
